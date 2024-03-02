@@ -1,6 +1,0 @@
-nome,sobrenome,grau_formacao,email,telefone,tipo_de_telefone,bairro,rua,n°,complemento
-Joao,Silva,Doutorado,joao@example.com,123456789,Celular,Centro,Rua Principal,100,Apto 101
-Maria,Santos,Mestrado,maria@example.com,987654321,Residencial,Barra,Frente à Praça,200,Andar 2
-Carlos,Oliveira,Especialização,carlos@example.com,456123789,Trabalho,Botafogo,Avenida Principal,300,Escritório 2
-Ana,Soares,Doutorado,ana@example.com,789456123,Outro,Tijuca,Rua do Comércio,400,
-Pedro,Costa,Graduação,pedro@example.com,321654987,-,Copacabana,Avenida Beira-Mar,500,

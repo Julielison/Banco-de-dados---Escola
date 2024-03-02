@@ -1,33 +1,20 @@
 -- In this SQL file, write (and comment!) the schema of your database, including the CREATE TABLE, CREATE INDEX, CREATE VIEW, etc. statements that compose it
 
--- excluindo as tabelas caso existam
-DROP TABLE IF EXISTS professores;
-DROP TABLE IF EXISTS alunos;
-DROP TABLE IF EXISTS matérias;
-DROP TABLE IF EXISTS turmas;
-DROP TABLE IF EXISTS turma_professor;
-DROP TABLE IF EXISTS turma_aluno;
-DROP TABLE IF EXISTS boletim;
-
 
 -- criando a tabela professores
 CREATE TABLE IF NOT EXISTS professores (
     "id" INTEGER PRIMARY KEY,
     "nome" TEXT NOT NULL,
     "sobrenome" TEXT NOT NULL,
-    "grau_formacao" TEXT NOT NULL,
+    "área_de_formação" TEXT NOT NULL,
+    "grau_de_formação" TEXT NOT NULL,
     "email" TEXT NOT NULL,
     "telefone" TEXT DEFAULT '-',
-    "tipo_de_telefone" DEFAULT '-',
-    "bairro" TEXT DEFAULT '-',
-    "rua" TEXT DEFAULT '-',
-    "n°" INTEGER DEFAULT '-',
-    "complemento" TEXT DEFAULT '-'
+    "tipo_de_telefone" DEFAULT '-'
 );
 
 
 -- criando a tabela dos alunos
--- ok
 CREATE TABLE IF NOT EXISTS alunos (
     "id_matrícula" INTEGER PRIMARY KEY,
     "nome" TEXT NOT NULL,
@@ -35,11 +22,29 @@ CREATE TABLE IF NOT EXISTS alunos (
     "email" TEXT DEFAULT '-',
     "data_de_nascimento" DATE NOT NULL,
     "telefone" TEXT DEFAULT '-',
-    "tipo_de_telefone" TEXT DEFAULT '-',
+    "tipo_de_telefone" TEXT DEFAULT '-'
+);
+
+
+-- endereços dos alunos
+CREATE TABLE IF NOT EXISTS enderecos_alunos (
+    "id_aluno" INTEGER,
     "bairro" TEXT DEFAULT '-',
     "rua" TEXT DEFAULT '-',
-    "n°" INTEGER DEFAULT '-',
-    "complemento" TEXT DEFAULT '-'
+    "numero" INTEGER DEFAULT '-',
+    "complemento" TEXT DEFAULT '-',
+    FOREIGN KEY ("id_aluno") REFERENCES alunos("id_matrícula")
+);
+
+
+-- endereços dos professores
+CREATE TABLE IF NOT EXISTS enderecos_professores (
+    "id_professor" INTEGER,
+    "bairro" TEXT DEFAULT '-',
+    "rua" TEXT DEFAULT '-',
+    "numero" INTEGER DEFAULT '-',
+    "complemento" TEXT DEFAULT '-',
+    FOREIGN KEY ("id_professor") REFERENCES professores("id")
 );
 
 
@@ -64,19 +69,17 @@ CREATE TABLE IF NOT EXISTS turmas (
     UNIQUE ("letra_da_turma", "ano_letivo", "turno", "serie")
 );
 
-
-
--- relacionando os alunos com as turmas
-CREATE TABLE IF NOT EXISTS turma_aluno (
-    "id_turma" INTEGER,
-    "id_aluno" INTEGER,
-    "situação" TEXT DEFAULT 'em curso' CHECK(
-        "situação" IN ('aprovado', 'reprovado', 'em curso')),
-    UNIQUE ("id_turma", "id_aluno"),
+-- alunos por turma e sua situação
+CREATE TABLE IF NOT EXISTS alunos_por_turma (
+    "id_turma" INTEGER NOT NULL,
+    "id_aluno" INTEGER NOT NULL,
+    "situação" TEXT NOT NULL DEFAULT 'em curso' CHECK(
+        "situação" IN ('em curso', 'aprovado', 'reprovado')),
+    UNIQUE ("id_aluno", "id_turma"),
     FOREIGN KEY ("id_turma") REFERENCES turmas("id"),
     FOREIGN KEY ("id_aluno") REFERENCES alunos("id_matrícula")
-);
 
+);
 
 -- criando a tabela boletim
 CREATE TABLE IF NOT EXISTS boletim (
@@ -86,14 +89,22 @@ CREATE TABLE IF NOT EXISTS boletim (
     "nota_p2" REAL DEFAULT '-',
     "nota_p3" REAL DEFAULT '-',
     "nota_p4" REAL DEFAULT '-',
-    "id_professor" INTEGER NOT NULL,
     "id_turma" INTEGER NOT NULL,
+    "id_professor" INTEGER NOT NULL,
     "faltas" INTEGER DEFAULT 0,
     "situação" TEXT DEFAULT 'em curso' CHECK(
         "situação" IN ('aprovado', 'reprovado', 'em curso')),
-    UNIQUE (id_aluno, id_turma, id_matéria, id_professor),
+    UNIQUE (id_aluno, id_turma, id_matéria),
     FOREIGN KEY ("id_aluno") REFERENCES alunos("id_matrícula"),
     FOREIGN KEY ("id_matéria") REFERENCES matérias("id"),
-    FOREIGN KEY ("id_turma") REFERENCES turmas("id")
+    FOREIGN KEY ("id_turma") REFERENCES turmas("id"),
     FOREIGN KEY ("id_professor") REFERENCES professores("id")
 );
+
+
+-- exibindo todos os alunos da turma 1
+CREATE VIEW alunos_turma_1 AS
+SELECT nome, sobrenome
+FROM alunos AS a
+JOIN alunos_por_turma AS b ON a.id_matrícula = b.id_aluno
+WHERE id_turma = 1;
